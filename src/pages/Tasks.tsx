@@ -15,9 +15,9 @@ import { format, isPast, isToday, parseISO } from "date-fns"
 import { cn } from "../lib/utils"
 
 const PRIORITY_STYLES: Record<string, string> = {
-  High:   "bg-red-500/15 text-red-400 border-red-500/30",
-  Medium: "bg-yellow-500/15 text-yellow-400 border-yellow-500/30",
-  Low:    "bg-emerald-500/15 text-emerald-400 border-emerald-500/30",
+  High:   "bg-rose-500/15 text-rose-300 border-rose-500/30",
+  Medium: "bg-amber-500/15 text-amber-300 border-amber-500/30",
+  Low:    "bg-emerald-500/15 text-emerald-300 border-emerald-500/30",
 }
 
 export default function Tasks() {
@@ -206,18 +206,18 @@ export default function Tasks() {
               key={tab.id}
               onClick={() => setFilter(tab.id as typeof filter)}
               className={cn(
-                "px-3.5 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-2 transition-all border shrink-0",
+                "px-3.5 py-1.5 rounded-xl text-xs font-bold flex items-center gap-2 transition-all border shrink-0",
                 filter === tab.id
                   ? tab.highlight
                     ? "bg-amber-500/20 text-amber-300 border-amber-500/40 glow-sm"
-                    : "bg-primary/15 text-primary border-primary/30 glow-sm"
-                  : "glass-card border-border/40 text-muted hover:text-text hover:border-border"
+                    : "bg-sky-500/20 text-sky-300 border-sky-400/40 glow-sm"
+                  : "glass-card border-white/10 text-muted hover:text-text hover:border-white/20"
               )}
             >
               <span>{tab.label}</span>
               <span className={cn(
                 "px-1.5 py-0.5 rounded-full text-[10px] font-bold",
-                filter === tab.id ? "bg-primary text-black" : "bg-secondary/50 text-muted"
+                filter === tab.id ? "bg-gradient-to-r from-sky-400 to-indigo-500 text-slate-950" : "bg-white/10 text-muted"
               )}>
                 {tab.count}
               </span>

@@ -1,19 +1,20 @@
 import { useState, useEffect } from "react"
 import { AppShell } from "../components/layout/AppShell"
-import { useMemories, useReminders } from "../api/queries"
+import { useMemories, useReminders, useUpdateReminder } from "../api/queries"
 import { Link } from "react-router-dom"
 import {
-  Sparkles, CheckCircle2, ChevronRight, PenTool,
-  Clock, Flame, FileText, CheckSquare, ArrowRight, Circle
+  Sparkles, CheckCircle2, PenTool,
+  Clock, Flame, FileText, CheckSquare, ArrowRight, Circle,
+  Bot, FolderOpen, Zap
 } from "lucide-react"
 import { format, isToday, isTomorrow, formatDistanceToNow } from "date-fns"
 
 const QUOTES = [
   { text: "The secret of getting ahead is getting started.", author: "Mark Twain" },
   { text: "Focus on being productive instead of busy.", author: "Tim Ferriss" },
-  { text: "Small progress is still progress.", author: "Unknown" },
+  { text: "Small continuous progress leads to giant breakthroughs.", author: "James Clear" },
   { text: "Done is better than perfect.", author: "Sheryl Sandberg" },
-  { text: "One task at a time. Do it well.", author: "Unknown" },
+  { text: "Your intellect grows by connecting what you capture.", author: "Tiago Forte" },
   { text: "Your future self is watching. Make them proud.", author: "Unknown" },
 ]
 
@@ -24,12 +25,12 @@ function LiveClock() {
     return () => clearInterval(t)
   }, [])
   return (
-    <div className="text-right">
-      <p className="text-2xl font-bold text-text tabular-nums tracking-tight">
+    <div className="text-right glass-card px-4 py-2 rounded-2xl border border-white/10 shadow-lg shrink-0">
+      <p className="text-2xl font-black text-white tabular-nums tracking-tight">
         {format(time, "h:mm")}
-        <span className="text-base font-medium text-muted ml-1">{format(time, "a")}</span>
+        <span className="text-xs font-bold text-sky-400 ml-1.5 uppercase">{format(time, "a")}</span>
       </p>
-      <p className="text-xs text-muted">{format(time, "EEEE, MMM d")}</p>
+      <p className="text-[10px] font-semibold text-muted/80">{format(time, "EEEE, MMMM d")}</p>
     </div>
   )
 }
@@ -37,6 +38,7 @@ function LiveClock() {
 export default function Home() {
   const { data: memories } = useMemories()
   const { data: reminders } = useReminders()
+  const updateReminder = useUpdateReminder()
 
   const quote = QUOTES[new Date().getDay() % QUOTES.length]
 
@@ -62,160 +64,224 @@ export default function Home() {
 
   const deadlineLabel = (deadline: string) => {
     const d = new Date(deadline)
-    if (isToday(d)) return { label: "Today", color: "text-red-400" }
-    if (isTomorrow(d)) return { label: "Tomorrow", color: "text-yellow-400" }
-    return { label: format(d, "MMM d"), color: "text-muted" }
+    if (isToday(d)) return { label: "Today", color: "text-rose-400 bg-rose-500/10 border-rose-500/25" }
+    if (isTomorrow(d)) return { label: "Tomorrow", color: "text-amber-400 bg-amber-500/10 border-amber-500/25" }
+    return { label: format(d, "MMM d"), color: "text-muted bg-white/5 border-white/10" }
+  }
+
+  const handleToggleTask = (taskId: string, currentCompleted: boolean) => {
+    updateReminder.mutate({
+      id: taskId,
+      updates: {
+        completed: !currentCompleted,
+        status: !currentCompleted ? "completed" : "pending"
+      }
+    })
   }
 
   return (
     <AppShell>
-      <div className="w-full space-y-8 animate-slide-up pb-8">
+      <div className="w-full space-y-8 animate-slide-up pb-8 max-w-6xl mx-auto">
 
         {/* ── Header ── */}
-        <header className="flex items-start justify-between pt-2">
+        <header className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pt-2">
           <div className="space-y-1">
-            <p className="text-sm font-medium text-muted uppercase tracking-widest">{timeGreeting()}</p>
-            <h1 className="text-4xl font-extrabold tracking-tight gradient-text">
-              Vivek
+            <div className="flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-sky-400 animate-pulse glow-sm" />
+              <p className="text-[11px] font-bold text-sky-400 uppercase tracking-widest">{timeGreeting()}</p>
+            </div>
+            <h1 className="text-4xl sm:text-5xl font-black tracking-tight gradient-text">
+              Vivek Potnuru
             </h1>
-            <p className="text-sm text-muted/80">{quote.text} — <span className="italic">{quote.author}</span></p>
+            <p className="text-xs text-muted/80 max-w-lg leading-relaxed pt-0.5 italic">
+              "{quote.text}" <span className="not-italic font-semibold text-slate-300 ml-1">— {quote.author}</span>
+            </p>
           </div>
           <LiveClock />
         </header>
 
-        {/* ── Quick Stats ── */}
-        <div className="grid grid-cols-3 gap-3 stagger">
+        {/* ── Quick Stats Bar ── */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5 stagger">
           {[
-            { label: "Notes", value: totalNotes, icon: <FileText className="w-4 h-4" />, color: "text-primary", bg: "bg-primary/10 border-primary/20" },
-            { label: "Pending Tasks", value: totalPending, icon: <CheckSquare className="w-4 h-4" />, color: "text-blue-400", bg: "bg-blue-500/10 border-blue-500/20" },
-            { label: "Day Streak", value: streak, icon: <Flame className="w-4 h-4" />, color: "text-orange-400", bg: "bg-orange-500/10 border-orange-500/20" },
+            {
+              label: "Notes Captured",
+              value: totalNotes,
+              sub: "Total memories",
+              icon: <FileText className="w-5 h-5" />,
+              color: "text-sky-400",
+              gradient: "from-sky-500/15 via-sky-500/5 to-transparent",
+              border: "border-sky-500/25",
+              glow: "hover:shadow-[0_0_25px_rgba(56,189,248,0.2)]"
+            },
+            {
+              label: "Pending Actions",
+              value: totalPending,
+              sub: "In queue",
+              icon: <CheckSquare className="w-5 h-5" />,
+              color: "text-indigo-400",
+              gradient: "from-indigo-500/15 via-purple-500/5 to-transparent",
+              border: "border-indigo-500/25",
+              glow: "hover:shadow-[0_0_25px_rgba(99,102,241,0.2)]"
+            },
+            {
+              label: "Active Day Streak",
+              value: streak,
+              sub: "Days streak",
+              icon: <Flame className="w-5 h-5" />,
+              color: "text-amber-400",
+              gradient: "from-amber-500/15 via-orange-500/5 to-transparent",
+              border: "border-amber-500/25",
+              glow: "hover:shadow-[0_0_25px_rgba(245,158,11,0.2)]"
+            },
           ].map(s => (
-            <div key={s.label} className={`p-4 rounded-xl border glass-card animate-slide-up ${s.bg}`}>
-              <div className={`${s.color} mb-2`}>{s.icon}</div>
-              <p className={`text-2xl font-bold ${s.color}`}>{s.value}</p>
-              <p className="text-[11px] text-muted mt-0.5">{s.label}</p>
+            <div
+              key={s.label}
+              className={`p-5 rounded-2xl border bg-gradient-to-br ${s.gradient} ${s.border} ${s.glow} glass-card card-hover transition-all animate-slide-up`}
+            >
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-[11px] font-bold text-muted uppercase tracking-wider">{s.label}</span>
+                <div className={`p-2.5 rounded-xl bg-white/[0.04] border border-white/10 ${s.color}`}>
+                  {s.icon}
+                </div>
+              </div>
+              <div className="flex items-baseline gap-2">
+                <p className={`text-3xl font-black tracking-tight ${s.color}`}>{s.value}</p>
+                <span className="text-xs text-muted/70 font-semibold">{s.sub}</span>
+              </div>
             </div>
           ))}
         </div>
 
-        {/* ── Quick Actions ── */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+        {/* ── Quick Action Launchers ── */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3.5">
           <Link
             to="/dashboard"
-            className="p-4 rounded-xl glass-card border border-primary/20 hover:border-primary/40 card-hover flex flex-col gap-3 group bg-primary/5"
+            className="p-4 rounded-2xl glass-card border border-sky-500/25 hover:border-sky-500/50 card-hover flex flex-col gap-3 group bg-gradient-to-br from-sky-500/10 to-transparent"
           >
-            <div className="w-9 h-9 rounded-xl bg-primary/20 flex items-center justify-center group-hover:scale-110 transition-transform">
-              <PenTool className="w-4 h-4 text-primary" />
+            <div className="w-10 h-10 rounded-xl bg-sky-500/20 border border-sky-500/30 flex items-center justify-center group-hover:scale-110 transition-transform glow-sm">
+              <PenTool className="w-5 h-5 text-sky-300" />
             </div>
             <div>
-              <h3 className="font-semibold text-sm text-text">Capture Note</h3>
-              <p className="text-[11px] text-muted mt-0.5">Jot down ideas fast</p>
+              <h3 className="font-bold text-sm text-text flex items-center gap-1">
+                Capture Note <ArrowRight className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity text-sky-400" />
+              </h3>
+              <p className="text-xs text-muted mt-0.5">Quick thoughts & speech</p>
             </div>
           </Link>
+
           <Link
             to="/tasks"
-            className="p-4 rounded-xl glass-card border border-border/50 hover:border-border card-hover flex flex-col gap-3 group"
+            className="p-4 rounded-2xl glass-card border border-indigo-500/25 hover:border-indigo-500/50 card-hover flex flex-col gap-3 group bg-gradient-to-br from-indigo-500/10 to-transparent"
           >
-            <div className="w-9 h-9 rounded-xl bg-secondary/40 flex items-center justify-center border border-border/50 group-hover:scale-110 transition-transform">
-              <CheckSquare className="w-4 h-4 text-text" />
+            <div className="w-10 h-10 rounded-xl bg-indigo-500/20 border border-indigo-500/30 flex items-center justify-center group-hover:scale-110 transition-transform glow-violet">
+              <CheckSquare className="w-5 h-5 text-indigo-300" />
             </div>
             <div>
-              <h3 className="font-semibold text-sm text-text">Manage Tasks</h3>
-              <p className="text-[11px] text-muted mt-0.5">{totalPending} tasks pending</p>
+              <h3 className="font-bold text-sm text-text flex items-center gap-1">
+                Tasks & Actions <ArrowRight className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity text-indigo-400" />
+              </h3>
+              <p className="text-xs text-muted mt-0.5">{totalPending} tasks scheduled</p>
             </div>
           </Link>
+
           <Link
             to="/projects"
-            className="p-4 rounded-xl glass-card border border-border/50 hover:border-border card-hover flex flex-col gap-3 group"
+            className="p-4 rounded-2xl glass-card border border-purple-500/25 hover:border-purple-500/50 card-hover flex flex-col gap-3 group bg-gradient-to-br from-purple-500/10 to-transparent"
           >
-            <div className="w-9 h-9 rounded-xl bg-secondary/40 flex items-center justify-center border border-border/50 group-hover:scale-110 transition-transform">
-              <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+            <div className="w-10 h-10 rounded-xl bg-purple-500/20 border border-purple-500/30 flex items-center justify-center group-hover:scale-110 transition-transform">
+              <FolderOpen className="w-5 h-5 text-purple-300" />
             </div>
             <div>
-              <h3 className="font-semibold text-sm text-text">Projects</h3>
-              <p className="text-[11px] text-muted mt-0.5">Track your work</p>
+              <h3 className="font-bold text-sm text-text flex items-center gap-1">
+                Kanban Projects <ArrowRight className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity text-purple-400" />
+              </h3>
+              <p className="text-xs text-muted mt-0.5">Visual workflow tracker</p>
             </div>
           </Link>
+
           <Link
             to="/chat"
-            className="p-4 rounded-xl glass-card border border-border/50 hover:border-border card-hover flex flex-col gap-3 group"
+            className="p-4 rounded-2xl glass-card border border-cyan-500/25 hover:border-cyan-500/50 card-hover flex flex-col gap-3 group bg-gradient-to-br from-cyan-500/10 to-transparent"
           >
-            <div className="w-9 h-9 rounded-xl bg-secondary/40 flex items-center justify-center border border-border/50 group-hover:scale-110 transition-transform">
-              <Sparkles className="w-4 h-4 text-violet-400" />
+            <div className="w-10 h-10 rounded-xl bg-cyan-500/20 border border-cyan-500/30 flex items-center justify-center group-hover:scale-110 transition-transform glow-sm">
+              <Bot className="w-5 h-5 text-cyan-300" />
             </div>
             <div>
-              <h3 className="font-semibold text-sm text-text">AI Chat</h3>
-              <p className="text-[11px] text-muted mt-0.5">Ask your brain</p>
+              <h3 className="font-bold text-sm text-text flex items-center gap-1">
+                AI Assistant <ArrowRight className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity text-cyan-400" />
+              </h3>
+              <p className="text-xs text-muted mt-0.5">Natural task extraction</p>
             </div>
           </Link>
         </div>
 
+        {/* ── Upcoming Tasks & Recent Notes ── */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
 
-          {/* ── Upcoming Tasks ── */}
+          {/* Upcoming Tasks */}
           <div className="space-y-3">
             <div className="flex items-center justify-between">
-              <h2 className="text-sm font-bold text-text uppercase tracking-wider flex items-center gap-2">
-                <Clock className="w-3.5 h-3.5 text-primary" />
-                Upcoming Tasks
+              <h2 className="text-xs font-bold text-text uppercase tracking-widest flex items-center gap-2">
+                <Clock className="w-3.5 h-3.5 text-sky-400" />
+                Upcoming Deadlines
               </h2>
-              <Link to="/tasks" className="text-xs text-primary hover:text-primary/80 flex items-center gap-0.5 transition-colors">
+              <Link to="/tasks" className="text-xs font-semibold text-sky-400 hover:text-sky-300 flex items-center gap-1 transition-colors">
                 View all <ArrowRight className="w-3 h-3" />
               </Link>
             </div>
             <div className="space-y-2">
               {upcomingTasks.length === 0 ? (
-                <div className="p-6 rounded-xl glass-card border border-border/40 text-center">
-                  <CheckCircle2 className="w-7 h-7 text-muted mx-auto mb-2 opacity-40" />
-                  <p className="text-sm text-muted">All clear! No upcoming tasks.</p>
+                <div className="p-8 rounded-2xl glass-card border border-white/10 text-center">
+                  <CheckCircle2 className="w-8 h-8 text-muted mx-auto mb-2 opacity-30" />
+                  <p className="text-xs font-semibold text-muted">All clear! No pending deadlines.</p>
                 </div>
               ) : upcomingTasks.map(task => {
                 const dl = deadlineLabel(task.deadline!)
                 return (
-                  <div key={task.id} className="flex items-center gap-3 p-3.5 rounded-xl glass-card border border-border/40 card-hover">
-                    <Circle className="w-4 h-4 text-muted shrink-0" />
-                    <span className="flex-1 text-sm text-text font-medium truncate">{task.title}</span>
-                    <span className={`text-[11px] font-semibold shrink-0 ${dl.color}`}>{dl.label}</span>
+                  <div key={task.id} className="flex items-center gap-3 p-3.5 rounded-xl glass-card border border-white/10 hover:border-sky-400/30 card-hover transition-all">
+                    <button
+                      onClick={() => handleToggleTask(task.id, task.completed)}
+                      className="text-muted hover:text-sky-400 transition-colors shrink-0"
+                      title="Click to complete task"
+                    >
+                      {task.completed ? <CheckCircle2 className="w-4 h-4 text-emerald-400" /> : <Circle className="w-4 h-4" />}
+                    </button>
+                    <span className="flex-1 text-xs font-semibold text-text truncate">{task.title}</span>
+                    <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border shrink-0 ${dl.color}`}>{dl.label}</span>
                   </div>
                 )
               })}
-              {pending.filter(r => !r.deadline).slice(0, 2 - upcomingTasks.length).map(task => (
-                <div key={task.id} className="flex items-center gap-3 p-3.5 rounded-xl glass-card border border-border/40 card-hover">
-                  <Circle className="w-4 h-4 text-muted shrink-0" />
-                  <span className="flex-1 text-sm text-text font-medium truncate">{task.title}</span>
-                </div>
-              ))}
             </div>
           </div>
 
-          {/* ── Recent Notes ── */}
+          {/* Recent Notes */}
           <div className="space-y-3">
             <div className="flex items-center justify-between">
-              <h2 className="text-sm font-bold text-text uppercase tracking-wider flex items-center gap-2">
-                <FileText className="w-3.5 h-3.5 text-primary" />
-                Recent Notes
+              <h2 className="text-xs font-bold text-text uppercase tracking-widest flex items-center gap-2">
+                <FileText className="w-3.5 h-3.5 text-sky-400" />
+                Recent Notes & Ideas
               </h2>
-              <Link to="/dashboard" className="text-xs text-primary hover:text-primary/80 flex items-center gap-0.5 transition-colors">
+              <Link to="/dashboard" className="text-xs font-semibold text-sky-400 hover:text-sky-300 flex items-center gap-1 transition-colors">
                 View all <ArrowRight className="w-3 h-3" />
               </Link>
             </div>
             <div className="space-y-2">
               {recentNotes.length === 0 ? (
-                <div className="p-6 rounded-xl glass-card border border-border/40 text-center">
-                  <FileText className="w-7 h-7 text-muted mx-auto mb-2 opacity-40" />
-                  <p className="text-sm text-muted">No notes yet. Start capturing!</p>
+                <div className="p-8 rounded-2xl glass-card border border-white/10 text-center">
+                  <FileText className="w-8 h-8 text-muted mx-auto mb-2 opacity-30" />
+                  <p className="text-xs font-semibold text-muted">No notes yet. Capture your first thought!</p>
                 </div>
               ) : recentNotes.map(note => (
                 <Link
                   key={note.id}
                   to="/dashboard"
-                  className="block p-3.5 rounded-xl glass-card border border-border/40 card-hover group"
+                  className="block p-3.5 rounded-xl glass-card border border-white/10 hover:border-sky-400/30 card-hover group transition-all"
                 >
                   <div className="flex items-start justify-between gap-2">
-                    <h4 className="text-sm font-medium text-text group-hover:text-primary transition-colors truncate">
-                      {note.title || "Untitled"}
+                    <h4 className="text-xs font-bold text-text group-hover:text-sky-400 transition-colors truncate">
+                      {note.title || "Untitled Note"}
                     </h4>
-                    <span className="text-[10px] text-muted shrink-0">
+                    <span className="text-[10px] text-muted shrink-0 font-medium">
                       {formatDistanceToNow(new Date(note.created_at), { addSuffix: true })}
                     </span>
                   </div>
@@ -226,21 +292,32 @@ export default function Home() {
           </div>
         </div>
 
-        {/* ── AI Daily Summary ── */}
-        <div className="p-5 rounded-xl border border-primary/20 bg-gradient-to-br from-primary/8 via-transparent to-violet-500/5 flex items-start gap-4 glass-card">
-          <div className="w-9 h-9 rounded-xl bg-primary/15 border border-primary/30 flex items-center justify-center shrink-0 mt-0.5">
-            <Sparkles className="w-5 h-5 text-primary" />
+        {/* ── AI Daily Briefing Banner ── */}
+        <div className="p-5 rounded-2xl border border-sky-500/25 bg-gradient-to-r from-sky-500/10 via-indigo-500/10 to-purple-500/10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 glass-card shadow-xl">
+          <div className="flex items-start gap-3.5 min-w-0 flex-1">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-sky-400 to-indigo-500 flex items-center justify-center shrink-0 shadow-lg glow-sm">
+              <Sparkles className="w-5 h-5 text-slate-950 font-bold" />
+            </div>
+            <div className="min-w-0 flex-1">
+              <h3 className="text-sm font-bold text-text flex items-center gap-2">
+                AI Morning Briefing
+                <span className="px-2 py-0.5 rounded-full text-[9px] font-bold bg-sky-400/20 text-sky-300 border border-sky-400/30">
+                  LIVE
+                </span>
+              </h3>
+              <p className="text-xs text-muted mt-1 leading-relaxed">
+                You have <strong className="text-text">{totalPending} tasks</strong> scheduled.{" "}
+                {totalNotes > 0
+                  ? `Your recent capture "${recentNotes[0]?.title || "Untitled"}" is ready for synthesis.`
+                  : "Start by jotting down your goals for today."}
+              </p>
+            </div>
           </div>
-          <div>
-            <h3 className="text-sm font-bold text-text">AI Daily Insight</h3>
-            <p className="text-sm text-muted mt-1.5 leading-relaxed">
-              You have <strong className="text-text">{totalPending} tasks</strong> pending.{" "}
-              {totalNotes > 0
-                ? `Your last note was "${recentNotes[0]?.title || "Untitled"}". Keep building momentum!`
-                : "Start by capturing your first thought of the day."}
-            </p>
-          </div>
-          <ChevronRight className="w-4 h-4 text-muted shrink-0 mt-0.5" />
+          <Link to="/chat" className="shrink-0 self-end sm:self-center">
+            <button className="px-4 py-2 rounded-xl text-xs font-bold bg-white/10 hover:bg-white/20 text-text border border-white/15 transition-all flex items-center gap-1.5 shadow-sm">
+              <Zap className="w-3.5 h-3.5 text-sky-400" /> Ask Assistant
+            </button>
+          </Link>
         </div>
 
       </div>

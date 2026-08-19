@@ -150,17 +150,17 @@ export function AppShell({ children }: AppShellProps) {
           <Link
             to="/dashboard"
             onClick={() => isSidebarOpen && toggleSidebar()}
-            className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium bg-primary/10 hover:bg-primary/20 text-primary border border-primary/20 hover:border-primary/40 transition-all group"
+            className="w-full flex items-center justify-center gap-2 px-3.5 py-2.5 rounded-xl text-xs font-bold bg-gradient-to-r from-sky-400 via-cyan-400 to-indigo-500 text-slate-950 hover:shadow-[0_0_20px_rgba(56,189,248,0.4)] transition-all group"
           >
             <Plus className="h-4 w-4 shrink-0 group-hover:rotate-90 transition-transform duration-200" />
-            New Note
+            Capture Note
           </Link>
         </div>
 
         <div className="space-y-5">
           {navGroups.map((group) => (
             <div key={group.title}>
-              <p className="px-2 text-[10px] font-semibold text-muted/60 mb-1.5 uppercase tracking-widest">
+              <p className="px-2 text-[10px] font-bold text-muted/50 mb-1.5 uppercase tracking-widest">
                 {group.title}
               </p>
               <nav className="space-y-0.5">
@@ -173,19 +173,19 @@ export function AppShell({ children }: AppShellProps) {
                       to={item.path}
                       onClick={() => isSidebarOpen && toggleSidebar()}
                       className={cn(
-                        "relative flex items-center space-x-2.5 rounded-lg px-3 py-2 text-sm font-medium transition-all duration-150",
+                        "relative flex items-center space-x-2.5 rounded-xl px-3 py-2 text-xs font-semibold transition-all duration-150",
                         isActive
-                          ? "bg-primary/12 text-primary nav-active"
-                          : "text-muted hover:bg-white/5 hover:text-text"
+                          ? "bg-gradient-to-r from-sky-500/20 via-sky-500/10 to-transparent text-sky-300 border border-sky-500/30 nav-active shadow-sm"
+                          : "text-muted hover:bg-white/[0.05] hover:text-text"
                       )}
                     >
                       <Icon className={cn(
                         "h-4 w-4 shrink-0 transition-colors",
-                        isActive ? "text-primary" : "text-muted/70"
+                        isActive ? "text-sky-400" : "text-muted/70"
                       )} />
                       <span>{item.label}</span>
                       {isActive && (
-                        <span className="ml-auto w-1.5 h-1.5 rounded-full bg-primary glow-sm shrink-0" />
+                        <span className="ml-auto w-1.5 h-1.5 rounded-full bg-sky-400 glow-sm shrink-0" />
                       )}
                     </Link>
                   )
@@ -197,27 +197,27 @@ export function AppShell({ children }: AppShellProps) {
       </div>
 
       {/* User Footer */}
-      <div className="shrink-0 border-t border-border/40 p-3">
-        <div className="flex items-center gap-2.5 group">
+      <div className="shrink-0 border-t border-white/10 p-3 bg-white/[0.02]">
+        <div className="flex items-center gap-2 group">
           <Link
             to="/profile"
             onClick={() => isSidebarOpen && toggleSidebar()}
-            className="flex items-center gap-2.5 flex-1 min-w-0 p-1.5 rounded-lg hover:bg-white/5 transition-colors"
+            className="flex items-center gap-2.5 flex-1 min-w-0 p-1.5 rounded-xl hover:bg-white/5 transition-colors"
           >
-            <div className="h-7 w-7 rounded-full bg-gradient-to-br from-primary/30 to-primary/10 border border-primary/30 flex items-center justify-center shrink-0">
-              <span className="text-[11px] font-bold text-primary">{userInitials}</span>
+            <div className="h-8 w-8 rounded-full bg-gradient-to-br from-sky-400/30 via-indigo-500/20 to-purple-500/30 border border-sky-400/40 flex items-center justify-center shrink-0 shadow-sm">
+              <span className="text-xs font-bold text-sky-300">{userInitials}</span>
             </div>
-            <div className="min-w-0 flex-1">
-              <p className="text-xs font-semibold text-text truncate">Vivek Potnuru</p>
-              <p className="text-[10px] text-muted/70 truncate leading-none">{user?.email ?? "vivek@example.com"}</p>
+            <div className="min-w-0 flex-1 space-y-0.5">
+              <p className="text-xs font-bold text-text truncate">Vivek Potnuru</p>
+              <p className="text-[10px] text-muted/80 truncate block">{user?.email ?? "vivek@example.com"}</p>
             </div>
           </Link>
           <button
             onClick={handleSignOut}
             title="Sign out"
-            className="p-1.5 rounded-lg text-muted hover:text-danger hover:bg-danger/10 transition-colors shrink-0"
+            className="p-2 rounded-xl text-muted hover:text-rose-400 hover:bg-rose-500/10 transition-colors shrink-0"
           >
-            <LogOut className="h-3.5 w-3.5" />
+            <LogOut className="h-4 w-4" />
           </button>
         </div>
       </div>
@@ -245,17 +245,17 @@ export function AppShell({ children }: AppShellProps) {
       {/* Mobile full-screen sidebar overlay */}
       {isSidebarOpen && (
         <div className="fixed inset-0 z-50 flex md:hidden">
-          <div className="w-64 h-full bg-[#0d0d0f]/98 backdrop-blur-2xl border-r border-border/50 flex flex-col">
+          <div className="w-64 h-full bg-[#060812]/95 backdrop-blur-2xl border-r border-white/10 flex flex-col">
             {sidebarContent}
           </div>
           {/* Backdrop — click to close */}
-          <div className="flex-1 bg-black/60 backdrop-blur-sm" onClick={toggleSidebar} />
+          <div className="flex-1 bg-black/70 backdrop-blur-sm" onClick={toggleSidebar} />
         </div>
       )}
 
       {/* Desktop Sidebar — conditionally rendered */}
       {desktopVisible && (
-        <aside className="hidden md:flex w-60 shrink-0 flex-col bg-[#0d0d0f]/80 backdrop-blur-2xl border-r border-border/40 shadow-2xl h-full">
+        <aside className="hidden md:flex w-60 shrink-0 flex-col bg-[#060812]/75 backdrop-blur-2xl border-r border-white/10 shadow-2xl h-full">
           {sidebarContent}
         </aside>
       )}

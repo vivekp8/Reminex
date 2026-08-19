@@ -1,19 +1,20 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
 @import "tailwindcss";
 
 @theme {
-  --color-background: #09090b; /* Deep slate/black */
-  --color-surface: rgba(255, 255, 255, 0.03); /* Glassy */
-  --color-primary: #fbbf24; /* Amber-400 - Idea Glow */
-  --color-primary-hover: #f59e0b; /* Amber-500 */
-  --color-secondary: rgba(255, 255, 255, 0.08); /* Frosted */
-  --color-text: #fafafa;
-  --color-muted: #a1a1aa;
-  --color-border: rgba(255, 255, 255, 0.12);
-  --color-danger: #ef4444;
-  --color-success: #10b981;
+  --color-background: #06070d; /* Deep Cosmic Obsidian */
+  --color-surface: rgba(255, 255, 255, 0.035); /* Multi-layer glass */
+  --color-primary: #38bdf8; /* Electric Sky Cyan */
+  --color-primary-hover: #0ea5e9; /* Deep Sky */
+  --color-accent: #a855f7; /* Vibrant Violet */
+  --color-secondary: rgba(255, 255, 255, 0.07); /* Frosted Ice */
+  --color-text: #f8fafc; /* Crisp Pure White */
+  --color-muted: #94a3b8; /* Slate Neutral */
+  --color-border: rgba(255, 255, 255, 0.09); /* Specular Glass Edge */
+  --color-danger: #f43f5e; /* Cyber Rose */
+  --color-success: #10b981; /* Neon Emerald */
 
-  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+  --font-sans: 'Plus Jakarta Sans', 'Outfit', 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-display: 'Outfit', 'Plus Jakarta Sans', sans-serif;
 }
 
 @layer base {
@@ -27,6 +28,7 @@
 
   :root {
     font-family: var(--font-sans);
+    color-scheme: dark;
   }
   
   body {
@@ -35,65 +37,97 @@
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     background-image: 
-      radial-gradient(ellipse at 60% 0%, rgba(251, 191, 36, 0.07) 0%, transparent 55%),
-      radial-gradient(ellipse at 0% 100%, rgba(139, 92, 246, 0.06) 0%, transparent 50%),
-      radial-gradient(ellipse at 100% 60%, rgba(59, 130, 246, 0.04) 0%, transparent 50%);
+      radial-gradient(circle at 15% 15%, rgba(56, 189, 248, 0.12) 0%, transparent 40%),
+      radial-gradient(circle at 85% 20%, rgba(168, 85, 247, 0.1) 0%, transparent 45%),
+      radial-gradient(circle at 50% 85%, rgba(99, 102, 241, 0.08) 0%, transparent 50%),
+      radial-gradient(circle at 80% 80%, rgba(244, 63, 94, 0.06) 0%, transparent 40%);
     background-attachment: fixed;
   }
 }
 
-/* ── Custom utilities ── */
+/* ── Custom High-End Aesthetics & Utilities ── */
 @layer utilities {
 
-  /* Glow effects */
+  /* Neon and Celestial Glow Effects */
   .glow-primary {
-    box-shadow: 0 0 20px 0 rgba(251, 191, 36, 0.45);
+    box-shadow: 0 0 25px -4px rgba(56, 189, 248, 0.55), 0 0 10px -2px rgba(56, 189, 248, 0.3);
   }
-  .glow-border {
-    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.1), 0 0 24px 0 rgba(251, 191, 36, 0.18);
-  }
-  .glow-sm {
-    box-shadow: 0 0 10px 0 rgba(251, 191, 36, 0.3);
+  
+  .glow-violet {
+    box-shadow: 0 0 25px -4px rgba(168, 85, 247, 0.55), 0 0 10px -2px rgba(168, 85, 247, 0.3);
   }
 
-  /* Gradient text */
+  .glow-border {
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.15), 0 0 24px 0 rgba(56, 189, 248, 0.22);
+  }
+
+  .glow-sm {
+    box-shadow: 0 0 12px 0 rgba(56, 189, 248, 0.35);
+  }
+
+  /* Platinum-Cyan-Violet Gradient Text */
   .gradient-text {
-    background: linear-gradient(135deg, #fbbf24 0%, #f97316 50%, #fbbf24 100%);
+    background: linear-gradient(135deg, #ffffff 0%, #e0f2fe 30%, #38bdf8 65%, #818cf8 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
     background-size: 200% auto;
-    animation: shimmer-text 4s linear infinite;
   }
 
-  /* Glass card */
+  /* Shimmering Cosmic Brand Gradient */
+  .gradient-brand {
+    background: linear-gradient(135deg, #38bdf8 0%, #818cf8 50%, #c084fc 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  /* Metallic Silver Gradient Text */
+  .gradient-silver {
+    background: linear-gradient(135deg, #ffffff 0%, #cbd5e1 50%, #ffffff 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  /* Frosted Glass Acrylic Surface */
   .glass-card {
-    background: rgba(255, 255, 255, 0.03);
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.015) 100%);
     border: 1px solid rgba(255, 255, 255, 0.08);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
   }
 
-  /* Card hover — subtle lift + glow */
+  .glass-card-accent {
+    background: linear-gradient(135deg, rgba(56, 189, 248, 0.08) 0%, rgba(168, 85, 247, 0.03) 100%);
+    border: 1px solid rgba(56, 189, 248, 0.2);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+  }
+
+  /* Card Hover Elevate & Luminescent Boundary */
   .card-hover {
-    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+    transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s ease, border-color 0.25s ease;
   }
   .card-hover:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 8px 32px 0 rgba(0,0,0,0.4), 0 0 0 1px rgba(251, 191, 36, 0.15);
-    border-color: rgba(251, 191, 36, 0.2) !important;
+    transform: translateY(-2px);
+    box-shadow: 0 16px 40px -12px rgba(0, 0, 0, 0.6), 0 0 25px -4px rgba(56, 189, 248, 0.22);
+    border-color: rgba(56, 189, 248, 0.35) !important;
   }
 
-  /* Logo shimmer */
+  /* Multi-Tone Hologram Shimmer */
   .logo-shimmer {
-    background: linear-gradient(135deg, #fbbf24 0%, #f97316 40%, #fbbf24 60%, #facc15 100%);
-    background-size: 200% 200%;
-    animation: shimmer-bg 3s ease infinite;
+    background: linear-gradient(135deg, #38bdf8 0%, #6366f1 35%, #ec4899 70%, #38bdf8 100%);
+    background-size: 220% 220%;
+    animation: shimmer-bg 4s ease infinite;
   }
 
-  /* Active nav left accent */
+  /* Active Sidebar Navigation Indicator */
   .nav-active {
     position: relative;
+    background: linear-gradient(90deg, rgba(56, 189, 248, 0.16) 0%, rgba(56, 189, 248, 0.03) 100%);
+    border: 1px solid rgba(56, 189, 248, 0.25);
   }
   .nav-active::before {
     content: '';
@@ -102,31 +136,31 @@
     top: 50%;
     transform: translateY(-50%);
     width: 3px;
-    height: 60%;
-    background: #fbbf24;
-    border-radius: 0 2px 2px 0;
-    box-shadow: 0 0 8px rgba(251, 191, 36, 0.8);
+    height: 65%;
+    background: linear-gradient(180deg, #38bdf8 0%, #818cf8 100%);
+    border-radius: 0 3px 3px 0;
+    box-shadow: 0 0 10px rgba(56, 189, 248, 0.9);
   }
 
-  /* Fade-in slide-up animation */
+  /* Smooth Entry Transitions */
   .animate-slide-up {
-    animation: slide-up 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    animation: slide-up 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
   }
 
-  /* Stagger children */
+  /* Stagger Animations */
   .stagger > *:nth-child(1) { animation-delay: 0ms; }
-  .stagger > *:nth-child(2) { animation-delay: 50ms; }
-  .stagger > *:nth-child(3) { animation-delay: 100ms; }
-  .stagger > *:nth-child(4) { animation-delay: 150ms; }
-  .stagger > *:nth-child(5) { animation-delay: 200ms; }
-  .stagger > *:nth-child(6) { animation-delay: 250ms; }
+  .stagger > *:nth-child(2) { animation-delay: 40ms; }
+  .stagger > *:nth-child(3) { animation-delay: 80ms; }
+  .stagger > *:nth-child(4) { animation-delay: 120ms; }
+  .stagger > *:nth-child(5) { animation-delay: 160ms; }
+  .stagger > *:nth-child(6) { animation-delay: 200ms; }
 
-  /* Pulse ring (for AI avatar) */
+  /* Pulsing Radar Ring */
   .pulse-ring {
-    animation: pulse-ring 2s cubic-bezier(0.455, 0.03, 0.515, 0.955) infinite;
+    animation: pulse-ring 2.5s cubic-bezier(0.455, 0.03, 0.515, 0.955) infinite;
   }
 
-  /* Scrollbar hidden */
+  /* Global Scrollbar Hiding */
   .scrollbar-none {
     scrollbar-width: none;
     -ms-overflow-style: none;
@@ -136,10 +170,10 @@
   }
 }
 
-/* ── Keyframes ── */
+/* ── Keyframe Animations ── */
 @keyframes shimmer-text {
-  0%   { background-position: 200% center; }
-  100% { background-position: -200% center; }
+  0%   { background-position: 250% center; }
+  100% { background-position: -250% center; }
 }
 
 @keyframes shimmer-bg {
@@ -150,7 +184,7 @@
 @keyframes slide-up {
   from {
     opacity: 0;
-    transform: translateY(12px);
+    transform: translateY(14px);
   }
   to {
     opacity: 1;
@@ -159,12 +193,12 @@
 }
 
 @keyframes pulse-ring {
-  0%   { box-shadow: 0 0 0 0 rgba(251, 191, 36, 0.5); }
-  70%  { box-shadow: 0 0 0 8px rgba(251, 191, 36, 0); }
-  100% { box-shadow: 0 0 0 0 rgba(251, 191, 36, 0); }
+  0%   { box-shadow: 0 0 0 0 rgba(56, 189, 248, 0.6); }
+  70%  { box-shadow: 0 0 0 10px rgba(56, 189, 248, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(56, 189, 248, 0); }
 }
 
-/* ── Hide all scrollbars globally ── */
+/* ── Hide scrollbars globally ── */
 * {
   scrollbar-width: none;
   -ms-overflow-style: none;
@@ -173,8 +207,9 @@
   display: none;
 }
 
-/* ── Date input styling ── */
-input[type="date"]::-webkit-calendar-picker-indicator {
-  filter: invert(1) brightness(0.6);
+/* ── Date/Time input picker custom styling ── */
+input[type="date"]::-webkit-calendar-picker-indicator,
+input[type="datetime-local"]::-webkit-calendar-picker-indicator {
+  filter: invert(1) brightness(0.8);
   cursor: pointer;
 }

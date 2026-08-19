@@ -1,38 +1,37 @@
 import { useMemo } from "react"
 import { AppShell } from "../components/layout/AppShell"
 import { useMemories, useReminders } from "../api/queries"
-import { Loader2, BarChart3, Target, Flame, Award, TrendingUp, CheckCircle2 } from "lucide-react"
+import { Loader2, Target, Flame, Award, TrendingUp, CheckCircle2, Zap } from "lucide-react"
 import { format, subDays, eachDayOfInterval, parseISO, isSameDay, startOfDay } from "date-fns"
 
 // ── Pure SVG Bar Chart ──
-function BarChart({ data, color = "#fbbf24" }: { data: { label: string; value: number }[]; color?: string }) {
+function BarChart({ data }: { data: { label: string; value: number }[] }) {
   const max = Math.max(...data.map(d => d.value), 1)
   return (
-    <div className="flex items-end gap-1.5 h-24 w-full">
+    <div className="flex items-end gap-2 h-28 w-full">
       {data.map((d, i) => {
         const heightPct = (d.value / max) * 100
         return (
-          <div key={i} className="flex-1 flex flex-col items-center gap-1 group">
+          <div key={i} className="flex-1 flex flex-col items-center gap-1.5 group">
             <div className="w-full flex flex-col justify-end h-20 relative">
               {d.value > 0 && (
                 <div
-                  className="absolute -top-6 left-1/2 -translate-x-1/2 text-[10px] font-bold opacity-0 group-hover:opacity-100 transition-opacity"
-                  style={{ color }}
+                  className="absolute -top-6 left-1/2 -translate-x-1/2 text-[10px] font-bold opacity-0 group-hover:opacity-100 transition-opacity text-sky-400 bg-sky-500/20 px-1.5 py-0.5 rounded"
                 >
                   {d.value}
                 </div>
               )}
               <div
-                className="w-full rounded-t-sm transition-all duration-500 ease-out"
+                className="w-full rounded-t-md transition-all duration-500 ease-out shadow-sm"
                 style={{
                   height: `${heightPct}%`,
-                  backgroundColor: color,
-                  opacity: d.value === 0 ? 0.15 : 0.85,
-                  minHeight: d.value > 0 ? 4 : 2,
+                  background: d.value > 0 ? "linear-gradient(180deg, #38bdf8 0%, #6366f1 100%)" : "rgba(255,255,255,0.06)",
+                  opacity: d.value === 0 ? 0.2 : 0.95,
+                  minHeight: d.value > 0 ? 6 : 3,
                 }}
               />
             </div>
-            <span className="text-[9px] text-muted">{d.label}</span>
+            <span className="text-[10px] font-semibold text-muted">{d.label}</span>
           </div>
         )
       })}
@@ -56,12 +55,12 @@ function DonutChart({ value, total, color, label }: { value: number; total: numb
             stroke={color} strokeWidth="10"
             strokeDasharray={`${dash} ${circ}`}
             strokeLinecap="round"
-            className="transition-all duration-700 ease-out"
+            className="transition-all duration-700 ease-out shadow-sm"
           />
         </svg>
         <div className="absolute inset-0 flex flex-col items-center justify-center">
-          <span className="text-lg font-bold text-text">{value}</span>
-          <span className="text-[9px] text-muted">{label}</span>
+          <span className="text-lg font-black text-text">{value}</span>
+          <span className="text-[9px] font-bold text-muted uppercase tracking-wider">{label}</span>
         </div>
       </div>
     </div>
@@ -83,9 +82,9 @@ function StreakHeatmap({ data }: { data: Record<string, number> }) {
   const maxVal = Math.max(...Object.values(data), 1)
 
   return (
-    <div className="flex gap-1 overflow-x-auto">
+    <div className="flex gap-1.5 overflow-x-auto pb-1 scrollbar-none">
       {weeks.map((w, wi) => (
-        <div key={wi} className="flex flex-col gap-1">
+        <div key={wi} className="flex flex-col gap-1.5">
           {w.map(day => {
             const key = format(day, "yyyy-MM-dd")
             const val = data[key] ?? 0
@@ -93,12 +92,17 @@ function StreakHeatmap({ data }: { data: Record<string, number> }) {
             return (
               <div
                 key={key}
-                title={`${format(day, "MMM d")}: ${val} notes`}
-                className="w-3 h-3 rounded-[2px] transition-all duration-300"
+                title={`${format(day, "MMM d")}: ${val} notes captured`}
+                className="w-3.5 h-3.5 rounded-[4px] transition-all duration-200 hover:scale-125"
                 style={{
                   backgroundColor: val === 0
                     ? "rgba(255,255,255,0.05)"
-                    : `rgba(251,191,36,${0.15 + intensity * 0.85})`,
+                    : intensity < 0.35
+                    ? "rgba(56, 189, 248, 0.35)"
+                    : intensity < 0.7
+                    ? "rgba(56, 189, 248, 0.7)"
+                    : "rgba(56, 189, 248, 1)",
+                  boxShadow: val > 0 ? "0 0 6px rgba(56,189,248,0.4)" : "none"
                 }}
               />
             )
@@ -110,136 +114,144 @@ function StreakHeatmap({ data }: { data: Record<string, number> }) {
 }
 
 export default function Performance() {
-  const { data: memories, isLoading: memoriesLoading } = useMemories()
-  const { data: reminders, isLoading: remindersLoading } = useReminders()
+  const { data: memories, isLoading: mLoading } = useMemories()
+  const { data: reminders, isLoading: rLoading } = useReminders()
 
-  const isLoading = memoriesLoading || remindersLoading
+  const isLoading = mLoading || rLoading
 
-  // 7-day activity
-  const sevenDayData = useMemo(() => {
-    const days = eachDayOfInterval({ start: subDays(new Date(), 6), end: new Date() })
-    return days.map(day => ({
-      label: format(day, "EEE"),
-      value: (memories ?? []).filter(m => isSameDay(parseISO(m.created_at), day)).length,
-    }))
+  // 7-day memory velocity
+  const last7Days = useMemo(() => {
+    const today = new Date()
+    return Array.from({ length: 7 }, (_, i) => {
+      const d = subDays(today, 6 - i)
+      const count = (memories ?? []).filter(m => isSameDay(parseISO(m.created_at), d)).length
+      return { label: format(d, "EEE"), value: count }
+    })
   }, [memories])
 
-  // Heatmap data
+  // Heatmap daily data
   const heatmapData = useMemo(() => {
     const map: Record<string, number> = {}
     ;(memories ?? []).forEach(m => {
-      const key = format(parseISO(m.created_at), "yyyy-MM-dd")
-      map[key] = (map[key] ?? 0) + 1
+      const k = format(parseISO(m.created_at), "yyyy-MM-dd")
+      map[k] = (map[k] ?? 0) + 1
     })
     return map
   }, [memories])
 
+  // Stats
   const totalNotes = memories?.length ?? 0
   const completedTasks = (reminders ?? []).filter(r => r.completed).length
   const pendingTasks = (reminders ?? []).filter(r => !r.completed).length
-  const totalTasks = completedTasks + pendingTasks
-  const streak = memories
-    ? [...new Set(memories.map(m => new Date(m.created_at).toDateString()))].length
-    : 0
+  const totalTasks = (reminders ?? []).length
+  const taskCompletionRate = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0
 
-  const productivityScore = totalTasks === 0 ? 0 : Math.round((completedTasks / totalTasks) * 100)
+  const streakDays = useMemo(() => {
+    if (!memories || memories.length === 0) return 0
+    return [...new Set(memories.map(m => new Date(m.created_at).toDateString()))].length
+  }, [memories])
 
-  const stats = [
-    { label: "Notes Captured", value: totalNotes, icon: <TrendingUp className="w-5 h-5" />, color: "text-primary", bg: "bg-primary/10 border-primary/20" },
-    { label: "Tasks Completed", value: completedTasks, icon: <Target className="w-5 h-5" />, color: "text-blue-400", bg: "bg-blue-500/10 border-blue-500/20" },
-    { label: "Day Streak", value: streak, icon: <Flame className="w-5 h-5" />, color: "text-orange-400", bg: "bg-orange-500/10 border-orange-500/20" },
-    { label: "Productivity", value: `${productivityScore}%`, icon: <Award className="w-5 h-5" />, color: "text-emerald-400", bg: "bg-emerald-500/10 border-emerald-500/20" },
+  const productivityScore = Math.min(100, Math.round((totalNotes * 5 + completedTasks * 10 + streakDays * 8) / 2))
+
+  const STATS = [
+    { label: "Notes Captured", value: totalNotes, icon: <TrendingUp className="w-5 h-5" />, color: "text-sky-400", bg: "bg-sky-500/10 border-sky-500/25" },
+    { label: "Tasks Done", value: `${completedTasks}/${totalTasks}`, icon: <CheckCircle2 className="w-5 h-5" />, color: "text-indigo-400", bg: "bg-indigo-500/10 border-indigo-500/25" },
+    { label: "Streak Momentum", value: `${streakDays} Days`, icon: <Flame className="w-5 h-5" />, color: "text-amber-400", bg: "bg-amber-500/10 border-amber-500/25" },
+    { label: "Productivity Index", value: `${productivityScore}%`, icon: <Award className="w-5 h-5" />, color: "text-emerald-400", bg: "bg-emerald-500/10 border-emerald-500/25" },
   ]
 
   return (
     <AppShell>
-      <div className="w-full space-y-8 animate-slide-up pb-8">
+      <div className="w-full space-y-8 animate-slide-up pb-8 max-w-6xl mx-auto">
 
         {/* Header */}
-        <header className="space-y-1">
-          <h1 className="text-3xl font-extrabold tracking-tight text-text">Performance</h1>
-          <p className="text-muted text-sm">Your productivity at a glance.</p>
+        <header className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div>
+            <h1 className="text-3xl font-black tracking-tight text-text">Productivity & Analytics</h1>
+            <p className="text-xs text-muted mt-1">Real-time output velocity, completion ratios, and habit momentum.</p>
+          </div>
+          <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-sky-500/10 border border-sky-500/20 glow-sm shrink-0">
+            <Zap className="w-4 h-4 text-sky-400" />
+            <span className="text-xs font-bold text-sky-300">Score: {productivityScore}/100</span>
+          </div>
         </header>
 
         {isLoading ? (
           <div className="flex justify-center py-24">
-            <Loader2 className="h-6 w-6 animate-spin text-muted" />
+            <Loader2 className="w-6 h-6 animate-spin text-muted" />
           </div>
         ) : (
           <>
-            {/* ── Stat Cards ── */}
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 stagger">
-              {stats.map((stat, i) => (
-                <div key={i} className={`p-5 rounded-xl border glass-card card-hover animate-slide-up ${stat.bg}`}>
-                  <div className={`mb-3 ${stat.color}`}>{stat.icon}</div>
-                  <p className={`text-2xl font-bold ${stat.color}`}>{stat.value}</p>
-                  <p className="text-xs text-muted mt-1">{stat.label}</p>
+            {/* ── Key Stat Cards ── */}
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3.5 stagger">
+              {STATS.map(s => (
+                <div key={s.label} className={`p-5 rounded-2xl border glass-card card-hover animate-slide-up ${s.bg}`}>
+                  <div className={`${s.color} mb-3`}>{s.icon}</div>
+                  <p className={`text-2xl font-black ${s.color}`}>{s.value}</p>
+                  <p className="text-xs font-bold text-muted mt-1 uppercase tracking-wider">{s.label}</p>
                 </div>
               ))}
             </div>
 
-            {/* ── Charts Row ── */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
+            {/* ── Visual Charts Grid ── */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
 
-              {/* 7-day bar chart */}
-              <div className="lg:col-span-2 glass-card border border-border/50 rounded-2xl p-5 space-y-3">
-                <div className="flex items-center gap-2">
-                  <BarChart3 className="w-4 h-4 text-primary" />
-                  <h3 className="text-sm font-bold text-text">Notes This Week</h3>
+              {/* 7-Day Velocity Chart */}
+              <div className="p-6 rounded-2xl glass-card border border-white/10 space-y-4 shadow-xl">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h2 className="text-sm font-bold text-text flex items-center gap-2">
+                      <TrendingUp className="w-4 h-4 text-sky-400" />
+                      7-Day Note Velocity
+                    </h2>
+                    <p className="text-[11px] text-muted">Daily memory captures over the last week</p>
+                  </div>
+                  <span className="text-xs font-bold text-sky-300 bg-sky-500/10 px-2 py-0.5 rounded-full border border-sky-500/20">
+                    {last7Days.reduce((a, b) => a + b.value, 0)} notes
+                  </span>
                 </div>
-                <BarChart data={sevenDayData} color="#fbbf24" />
-                <p className="text-[11px] text-muted">
-                  {sevenDayData.reduce((s, d) => s + d.value, 0)} notes captured in the last 7 days
-                </p>
+                <BarChart data={last7Days} />
               </div>
 
-              {/* Task completion donuts */}
-              <div className="glass-card border border-border/50 rounded-2xl p-5 space-y-3">
-                <div className="flex items-center gap-2">
-                  <CheckCircle2 className="w-4 h-4 text-blue-400" />
-                  <h3 className="text-sm font-bold text-text">Task Completion</h3>
+              {/* Task Completion Ratios */}
+              <div className="p-6 rounded-2xl glass-card border border-white/10 space-y-4 shadow-xl">
+                <div>
+                  <h2 className="text-sm font-bold text-text flex items-center gap-2">
+                    <Target className="w-4 h-4 text-indigo-400" />
+                    Task Execution Ratio
+                  </h2>
+                  <p className="text-[11px] text-muted">Distribution of completed vs active tasks</p>
                 </div>
-                <div className="flex justify-around pt-2">
-                  <DonutChart value={completedTasks} total={totalTasks} color="#3b82f6" label="done" />
-                  <DonutChart value={pendingTasks} total={totalTasks} color="#f97316" label="pending" />
-                </div>
-                <div className="flex justify-around text-center">
-                  <div>
-                    <p className="text-[10px] text-muted">Completed</p>
-                    <p className="text-xs font-bold text-blue-400">{completedTasks}</p>
-                  </div>
-                  <div>
-                    <p className="text-[10px] text-muted">Pending</p>
-                    <p className="text-xs font-bold text-orange-400">{pendingTasks}</p>
+                <div className="flex items-center justify-around pt-2">
+                  <DonutChart value={completedTasks} total={totalTasks} color="#10b981" label="DONE" />
+                  <DonutChart value={pendingTasks} total={totalTasks} color="#38bdf8" label="ACTIVE" />
+                  <div className="text-center space-y-1">
+                    <p className="text-3xl font-black text-text">{taskCompletionRate}%</p>
+                    <p className="text-[10px] font-bold text-muted uppercase tracking-wider">Completion</p>
                   </div>
                 </div>
               </div>
             </div>
 
-            {/* ── Streak Heatmap ── */}
-            <div className="glass-card border border-border/50 rounded-2xl p-5 space-y-4">
+            {/* ── 12-Week Streak Heatmap ── */}
+            <div className="p-6 rounded-2xl glass-card border border-white/10 space-y-4 shadow-xl">
               <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <Flame className="w-4 h-4 text-orange-400" />
-                  <h3 className="text-sm font-bold text-text">Activity Heatmap</h3>
+                <div>
+                  <h2 className="text-sm font-bold text-text flex items-center gap-2">
+                    <Flame className="w-4 h-4 text-amber-400" />
+                    12-Week Activity Matrix
+                  </h2>
+                  <p className="text-[11px] text-muted">Contribution density over the past 84 days</p>
                 </div>
-                <div className="flex items-center gap-1.5 text-[10px] text-muted">
-                  Less
-                  {[0.05, 0.3, 0.55, 0.8, 1].map(o => (
-                    <span key={o} className="w-3 h-3 rounded-[2px] inline-block" style={{ backgroundColor: `rgba(251,191,36,${o})` }} />
-                  ))}
-                  More
-                </div>
+                <span className="text-xs font-bold text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded-full border border-amber-500/20">
+                  {streakDays} Active Days
+                </span>
               </div>
-              <div className="overflow-x-auto">
-                <StreakHeatmap data={heatmapData} />
-              </div>
-              <p className="text-[11px] text-muted">
-                Last 12 weeks of note-taking activity
-              </p>
+              <StreakHeatmap data={heatmapData} />
             </div>
           </>
         )}
+
       </div>
     </AppShell>
   )
