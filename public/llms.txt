@@ -1,0 +1,9 @@
+# Reminex
+
+Reminex is a personal intelligent workspace and "second brain" web application. It allows users to capture notes, manage tasks, track projects, and chat with an AI assistant to extract insights from their personal data.
+
+## Features
+- Note capture and management.
+- Task tracking and scheduling.
+- Kanban-style project management.
+- AI Assistant for natural task extraction and idea synthesis.

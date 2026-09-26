@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en" style="height:100%;width:100%;margin:0;padding:0;">
+<html lang="en">
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
@@ -11,6 +11,9 @@
     <meta property="og:description" content="Capture notes, manage tasks, track projects, and let AI connect the dots." />
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://reminex.vercel.app/" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Reminex — Your Second Brain & Intelligent Personal Workspace" />
+    <meta name="twitter:description" content="Capture notes, manage tasks, track projects, and let AI connect the dots." />
     <link rel="canonical" href="https://reminex.vercel.app/" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -19,17 +22,28 @@
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
-      "@type": "WebApplication",
-      "name": "Reminex",
-      "url": "https://reminex.vercel.app/",
-      "description": "Your personal intelligent workspace. Capture notes, manage tasks, track projects and chat with your second brain.",
-      "applicationCategory": "ProductivityApplication",
-      "operatingSystem": "Any"
+      "@graph": [
+        {
+          "@type": "Organization",
+          "@id": "https://reminex.vercel.app/#organization",
+          "name": "Reminex",
+          "url": "https://reminex.vercel.app/"
+        },
+        {
+          "@type": "SoftwareApplication",
+          "@id": "https://reminex.vercel.app/#software",
+          "name": "Reminex",
+          "url": "https://reminex.vercel.app/",
+          "description": "Your personal intelligent workspace. Capture notes, manage tasks, track projects and chat with your second brain.",
+          "applicationCategory": "ProductivityApplication",
+          "operatingSystem": "Any"
+        }
+      ]
     }
     </script>
   </head>
-  <body style="height:100%;width:100%;margin:0;padding:0;overflow:hidden;">
-    <div id="root" style="height:100%;width:100%;">
+  <body>
+    <div id="root">
       <div style="display: none;">
         <h1>Reminex — Your Second Brain & Intelligent Personal Workspace</h1>
         <h2>Capture notes, manage tasks, track projects</h2>
