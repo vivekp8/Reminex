@@ -71,17 +71,19 @@ export default function Profile() {
         </header>
 
         {/* Avatar card */}
-        <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6 p-6 rounded-2xl glass-card border border-border/50">
-          <div className="relative group">
-            <div className="w-24 h-24 rounded-full bg-gradient-to-br from-primary/30 to-primary/10 border-2 border-primary/30 flex items-center justify-center shadow-lg">
-              <span className="text-3xl font-extrabold text-primary">{initials}</span>
+        <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6 p-6 rounded-3xl glass-card card-hover border border-border/30 relative overflow-hidden">
+          <div className="absolute top-0 left-0 w-full h-32 bg-gradient-to-b from-sky-400/10 to-transparent pointer-events-none" />
+          <div className="relative group z-10">
+            <div className="w-24 h-24 rounded-full bg-gradient-to-br from-sky-400/20 via-indigo-500/20 to-purple-500/20 border-2 border-sky-400/40 flex items-center justify-center shadow-[0_0_30px_rgba(56,189,248,0.2)] pulse-ring relative">
+              <div className="absolute inset-0 rounded-full bg-gradient-to-br from-sky-400/30 to-indigo-500/30 blur-md opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+              <span className="text-3xl font-extrabold text-sky-300 relative z-10">{initials}</span>
             </div>
             <button
-              className="absolute bottom-0 right-0 p-2 rounded-full bg-primary text-black shadow-md hover:scale-110 transition-transform"
+              className="absolute bottom-0 right-0 p-2.5 rounded-full bg-sky-400 text-slate-950 shadow-[0_0_15px_rgba(56,189,248,0.5)] hover:scale-110 hover:bg-sky-300 transition-all"
               title="Change avatar (coming soon)"
               onClick={() => alert("Avatar upload coming soon!")}
             >
-              <Camera className="w-4 h-4" />
+              <Camera className="w-4 h-4 font-bold" />
             </button>
           </div>
           <div className="flex-1 text-center sm:text-left">
@@ -111,15 +113,15 @@ export default function Profile() {
           <h3 className="text-sm font-bold uppercase tracking-widest text-muted">Account Information</h3>
 
           {/* Email */}
-          <div className="glass-card border border-border/50 rounded-xl overflow-hidden">
-            <div className="flex items-center justify-between p-4">
-              <div className="flex items-center gap-3">
-                <div className="p-2 rounded-lg bg-secondary/40 border border-border/30">
-                  <Mail className="w-4 h-4 text-muted" />
+          <div className="glass-card border border-border/30 rounded-2xl overflow-hidden transition-colors focus-within:border-sky-400/40">
+            <div className="flex items-center justify-between p-4 hover:bg-white/[0.02] transition-colors">
+              <div className="flex items-center gap-4">
+                <div className="p-2.5 rounded-xl bg-sky-500/10 border border-sky-500/20 text-sky-400">
+                  <Mail className="w-5 h-5" />
                 </div>
                 <div>
-                  <p className="text-sm font-semibold text-text">Email Address</p>
-                  <p className="text-xs text-muted">{emailValue}</p>
+                  <p className="text-sm font-bold text-text tracking-tight">Email Address</p>
+                  <p className="text-xs text-muted/80">{emailValue}</p>
                 </div>
               </div>
               <Button
@@ -151,15 +153,15 @@ export default function Profile() {
           </div>
 
           {/* Password */}
-          <div className="glass-card border border-border/50 rounded-xl overflow-hidden">
-            <div className="flex items-center justify-between p-4">
-              <div className="flex items-center gap-3">
-                <div className="p-2 rounded-lg bg-secondary/40 border border-border/30">
-                  <Key className="w-4 h-4 text-muted" />
+          <div className="glass-card border border-border/30 rounded-2xl overflow-hidden transition-colors focus-within:border-indigo-400/40">
+            <div className="flex items-center justify-between p-4 hover:bg-white/[0.02] transition-colors">
+              <div className="flex items-center gap-4">
+                <div className="p-2.5 rounded-xl bg-indigo-500/10 border border-indigo-500/20 text-indigo-400">
+                  <Key className="w-5 h-5" />
                 </div>
                 <div>
-                  <p className="text-sm font-semibold text-text">Password</p>
-                  <p className="text-xs text-muted">Last changed 3 months ago</p>
+                  <p className="text-sm font-bold text-text tracking-tight">Password</p>
+                  <p className="text-xs text-muted/80">Last changed 3 months ago</p>
                 </div>
               </div>
               <Button
@@ -214,20 +216,20 @@ export default function Profile() {
           </div>
 
           {/* 2FA */}
-          <div className="glass-card border border-border/50 rounded-xl overflow-hidden">
-            <div className="flex items-center justify-between p-4">
-              <div className="flex items-center gap-3">
+          <div className="glass-card border border-border/30 rounded-2xl overflow-hidden">
+            <div className="flex items-center justify-between p-4 hover:bg-white/[0.02] transition-colors">
+              <div className="flex items-center gap-4">
                 <div className={cn(
-                  "p-2 rounded-lg border",
+                  "p-2.5 rounded-xl border transition-all duration-300",
                   twoFAEnabled
-                    ? "bg-emerald-500/10 border-emerald-500/20"
-                    : "bg-secondary/40 border-border/30"
+                    ? "bg-emerald-500/10 border-emerald-500/30 text-emerald-400 shadow-[0_0_15px_rgba(16,185,129,0.15)]"
+                    : "bg-secondary/20 border-border/30 text-muted"
                 )}>
-                  <Shield className={cn("w-4 h-4", twoFAEnabled ? "text-emerald-400" : "text-muted")} />
+                  <Shield className="w-5 h-5" />
                 </div>
                 <div>
-                  <p className="text-sm font-semibold text-text">Two-Factor Authentication</p>
-                  <p className="text-xs text-muted">{twoFAEnabled ? "Enabled — your account is protected" : "Add an extra layer of security"}</p>
+                  <p className="text-sm font-bold text-text tracking-tight">Two-Factor Authentication</p>
+                  <p className="text-xs text-muted/80">{twoFAEnabled ? "Enabled — your account is protected" : "Add an extra layer of security"}</p>
                 </div>
               </div>
               {/* Toggle switch */}

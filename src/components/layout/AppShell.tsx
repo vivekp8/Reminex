@@ -173,15 +173,15 @@ export function AppShell({ children }: AppShellProps) {
                       to={item.path}
                       onClick={() => isSidebarOpen && toggleSidebar()}
                       className={cn(
-                        "relative flex items-center space-x-2.5 rounded-xl px-3 py-2 text-xs font-semibold transition-all duration-150",
+                        "relative flex items-center space-x-2.5 rounded-xl px-3 py-2 text-xs font-semibold transition-all duration-300",
                         isActive
                           ? "bg-gradient-to-r from-sky-500/20 via-sky-500/10 to-transparent text-sky-300 border border-sky-500/30 nav-active shadow-sm"
-                          : "text-muted hover:bg-white/[0.05] hover:text-text"
+                          : "text-muted hover:bg-sky-500/10 hover:text-sky-100 hover:shadow-[inset_0_1px_0_rgba(255,255,255,0.05)]"
                       )}
                     >
                       <Icon className={cn(
-                        "h-4 w-4 shrink-0 transition-colors",
-                        isActive ? "text-sky-400" : "text-muted/70"
+                        "h-4 w-4 shrink-0 transition-all duration-300",
+                        isActive ? "text-sky-400 drop-shadow-[0_0_8px_rgba(56,189,248,0.5)]" : "text-muted/70 group-hover:scale-110"
                       )} />
                       <span>{item.label}</span>
                       {isActive && (
@@ -202,13 +202,13 @@ export function AppShell({ children }: AppShellProps) {
           <Link
             to="/profile"
             onClick={() => isSidebarOpen && toggleSidebar()}
-            className="flex items-center gap-2.5 flex-1 min-w-0 p-1.5 rounded-xl hover:bg-white/5 transition-colors"
+            className="flex items-center gap-2.5 flex-1 min-w-0 p-2 rounded-xl hover:bg-white/5 border border-transparent hover:border-white/10 transition-all shadow-sm"
           >
-            <div className="h-8 w-8 rounded-full bg-gradient-to-br from-sky-400/30 via-indigo-500/20 to-purple-500/30 border border-sky-400/40 flex items-center justify-center shrink-0 shadow-sm">
-              <span className="text-xs font-bold text-sky-300">{userInitials}</span>
+            <div className="h-9 w-9 rounded-full bg-gradient-to-br from-sky-400/40 via-indigo-500/30 to-purple-500/40 border-2 border-sky-400/50 flex items-center justify-center shrink-0 shadow-[0_0_15px_rgba(56,189,248,0.2)]">
+              <span className="text-xs font-black text-sky-200">{userInitials}</span>
             </div>
             <div className="min-w-0 flex-1 space-y-0.5">
-              <p className="text-xs font-bold text-text truncate">Vivek Potnuru</p>
+              <p className="text-sm font-bold text-text truncate tracking-tight">Vivek Potnuru</p>
               <p className="text-[10px] text-muted/80 truncate block">{user?.email ?? "vivek@example.com"}</p>
             </div>
           </Link>
@@ -255,7 +255,7 @@ export function AppShell({ children }: AppShellProps) {
 
       {/* Desktop Sidebar — conditionally rendered */}
       {desktopVisible && (
-        <aside className="hidden md:flex w-60 shrink-0 flex-col bg-[#060812]/75 backdrop-blur-2xl border-r border-white/10 shadow-2xl h-full">
+        <aside className="hidden md:flex w-64 shrink-0 flex-col bg-[#030408]/60 backdrop-blur-3xl border-r border-white/5 shadow-2xl h-full">
           {sidebarContent}
         </aside>
       )}

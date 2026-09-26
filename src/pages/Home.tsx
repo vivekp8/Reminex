@@ -90,7 +90,7 @@ export default function Home() {
               <span className="w-2 h-2 rounded-full bg-sky-400 animate-pulse glow-sm" />
               <p className="text-[11px] font-bold text-sky-400 uppercase tracking-widest">{timeGreeting()}</p>
             </div>
-            <h1 className="text-4xl sm:text-5xl font-black tracking-tight gradient-text">
+            <h1 className="text-4xl sm:text-6xl font-black tracking-tight gradient-text animate-gradient-x py-1">
               Vivek Potnuru
             </h1>
             <p className="text-xs text-muted/80 max-w-lg leading-relaxed pt-0.5 italic">
@@ -156,10 +156,11 @@ export default function Home() {
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3.5">
           <Link
             to="/dashboard"
-            className="p-4 rounded-2xl glass-card border border-sky-500/25 hover:border-sky-500/50 card-hover flex flex-col gap-3 group bg-gradient-to-br from-sky-500/10 to-transparent"
+            className="p-4 rounded-2xl glass-card border border-sky-500/20 hover:border-sky-500/50 card-hover flex flex-col gap-3 group bg-gradient-to-br from-sky-500/10 to-transparent relative overflow-hidden"
           >
+            <div className="absolute top-0 right-0 w-24 h-24 bg-sky-400/10 blur-2xl rounded-full mix-blend-screen group-hover:bg-sky-400/20 transition-all duration-500" />
             <div className="w-10 h-10 rounded-xl bg-sky-500/20 border border-sky-500/30 flex items-center justify-center group-hover:scale-110 transition-transform glow-sm">
-              <PenTool className="w-5 h-5 text-sky-300" />
+              <PenTool className="w-5 h-5 text-sky-300 animate-float" />
             </div>
             <div>
               <h3 className="font-bold text-sm text-text flex items-center gap-1">
@@ -171,10 +172,11 @@ export default function Home() {
 
           <Link
             to="/tasks"
-            className="p-4 rounded-2xl glass-card border border-indigo-500/25 hover:border-indigo-500/50 card-hover flex flex-col gap-3 group bg-gradient-to-br from-indigo-500/10 to-transparent"
+            className="p-4 rounded-2xl glass-card border border-indigo-500/20 hover:border-indigo-500/50 card-hover flex flex-col gap-3 group bg-gradient-to-br from-indigo-500/10 to-transparent relative overflow-hidden"
           >
+            <div className="absolute top-0 right-0 w-24 h-24 bg-indigo-400/10 blur-2xl rounded-full mix-blend-screen group-hover:bg-indigo-400/20 transition-all duration-500" />
             <div className="w-10 h-10 rounded-xl bg-indigo-500/20 border border-indigo-500/30 flex items-center justify-center group-hover:scale-110 transition-transform glow-violet">
-              <CheckSquare className="w-5 h-5 text-indigo-300" />
+              <CheckSquare className="w-5 h-5 text-indigo-300 animate-float" style={{ animationDelay: '1s' }} />
             </div>
             <div>
               <h3 className="font-bold text-sm text-text flex items-center gap-1">
@@ -186,10 +188,11 @@ export default function Home() {
 
           <Link
             to="/projects"
-            className="p-4 rounded-2xl glass-card border border-purple-500/25 hover:border-purple-500/50 card-hover flex flex-col gap-3 group bg-gradient-to-br from-purple-500/10 to-transparent"
+            className="p-4 rounded-2xl glass-card border border-purple-500/20 hover:border-purple-500/50 card-hover flex flex-col gap-3 group bg-gradient-to-br from-purple-500/10 to-transparent relative overflow-hidden"
           >
+            <div className="absolute top-0 right-0 w-24 h-24 bg-purple-400/10 blur-2xl rounded-full mix-blend-screen group-hover:bg-purple-400/20 transition-all duration-500" />
             <div className="w-10 h-10 rounded-xl bg-purple-500/20 border border-purple-500/30 flex items-center justify-center group-hover:scale-110 transition-transform">
-              <FolderOpen className="w-5 h-5 text-purple-300" />
+              <FolderOpen className="w-5 h-5 text-purple-300 animate-float" style={{ animationDelay: '2s' }} />
             </div>
             <div>
               <h3 className="font-bold text-sm text-text flex items-center gap-1">
@@ -201,10 +204,11 @@ export default function Home() {
 
           <Link
             to="/chat"
-            className="p-4 rounded-2xl glass-card border border-cyan-500/25 hover:border-cyan-500/50 card-hover flex flex-col gap-3 group bg-gradient-to-br from-cyan-500/10 to-transparent"
+            className="p-4 rounded-2xl glass-card border border-cyan-500/20 hover:border-cyan-500/50 card-hover flex flex-col gap-3 group bg-gradient-to-br from-cyan-500/10 to-transparent relative overflow-hidden"
           >
+            <div className="absolute top-0 right-0 w-24 h-24 bg-cyan-400/10 blur-2xl rounded-full mix-blend-screen group-hover:bg-cyan-400/20 transition-all duration-500" />
             <div className="w-10 h-10 rounded-xl bg-cyan-500/20 border border-cyan-500/30 flex items-center justify-center group-hover:scale-110 transition-transform glow-sm">
-              <Bot className="w-5 h-5 text-cyan-300" />
+              <Bot className="w-5 h-5 text-cyan-300 animate-float" style={{ animationDelay: '3s' }} />
             </div>
             <div>
               <h3 className="font-bold text-sm text-text flex items-center gap-1">
@@ -293,10 +297,11 @@ export default function Home() {
         </div>
 
         {/* ── AI Daily Briefing Banner ── */}
-        <div className="p-5 rounded-2xl border border-sky-500/25 bg-gradient-to-r from-sky-500/10 via-indigo-500/10 to-purple-500/10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 glass-card shadow-xl">
-          <div className="flex items-start gap-3.5 min-w-0 flex-1">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-sky-400 to-indigo-500 flex items-center justify-center shrink-0 shadow-lg glow-sm">
-              <Sparkles className="w-5 h-5 text-slate-950 font-bold" />
+        <div className="p-6 rounded-3xl border border-sky-400/30 bg-gradient-to-r from-sky-500/15 via-indigo-500/10 to-purple-500/15 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6 glass-card shadow-[0_10px_40px_-10px_rgba(56,189,248,0.2)] animate-gradient-x relative overflow-hidden card-hover">
+          <div className="absolute top-0 right-0 w-64 h-64 bg-sky-400/20 blur-[80px] rounded-full mix-blend-screen pointer-events-none" />
+          <div className="flex items-start gap-4 min-w-0 flex-1 relative z-10">
+            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-sky-400 to-indigo-500 flex items-center justify-center shrink-0 shadow-lg glow-sm animate-float">
+              <Sparkles className="w-6 h-6 text-slate-950 font-bold" />
             </div>
             <div className="min-w-0 flex-1">
               <h3 className="text-sm font-bold text-text flex items-center gap-2">

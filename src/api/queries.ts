@@ -181,6 +181,47 @@ export function useActivityLogs() {
   })
 }
 
+export function useCreateActivityLog() {
+  const queryClient = useQueryClient()
+  const user = useAuthStore((state) => state.user)
+
+  return useMutation({
+    mutationFn: async (newLog: Omit<ActivityLog, 'id' | 'user_id' | 'timestamp'>) => {
+      if (!user) throw new Error("Not authenticated")
+      
+      try {
+        const { data, error } = await supabase
+          .from('activity_logs')
+          .insert([
+            { 
+              user_id: user.id, 
+              ...newLog,
+              timestamp: new Date().toISOString()
+            }
+          ])
+          .select()
+          .single()
+          
+        if (error) throw error
+        return data as ActivityLog
+      } catch (e) {
+        console.warn("Supabase insert failed, saving to mock data in memory.", e)
+        const mockLog: ActivityLog = {
+          id: `mock-act-new-${Date.now()}`,
+          user_id: user.id,
+          timestamp: new Date().toISOString(),
+          ...newLog
+        }
+        inMemoryMockActivities = [mockLog, ...inMemoryMockActivities]
+        return mockLog
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['activity_logs'] })
+    },
+  })
+}
+
 export function useMemories() {
   const user = useAuthStore((state) => state.user)
 

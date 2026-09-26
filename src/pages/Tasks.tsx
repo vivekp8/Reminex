@@ -5,11 +5,12 @@ import {
   Trash2, Pencil, X, Check,
   Clock, CalendarDays, Plus,
   Play, Pause, Share2, UserPlus, Copy,
-  Calendar, ListFilter, AlertCircle
+  Calendar, ListFilter, AlertCircle, ChevronDown
 } from "lucide-react"
 import { Input } from "../components/ui/Input"
+import { DateTimePicker } from "../components/ui/DateTimePicker"
 import { Button } from "../components/ui/Button"
-import { useReminders, useCreateReminder, useUpdateReminder, useDeleteReminder } from "../api/queries"
+import { useReminders, useCreateReminder, useUpdateReminder, useDeleteReminder, useCreateActivityLog } from "../api/queries"
 import type { Reminder } from "../api/queries"
 import { format, isPast, isToday, parseISO } from "date-fns"
 import { cn } from "../lib/utils"
@@ -20,11 +21,58 @@ const PRIORITY_STYLES: Record<string, string> = {
   Low:    "bg-emerald-500/15 text-emerald-300 border-emerald-500/30",
 }
 
+// Custom Select Component for dark theme
+function CustomSelect({
+  value,
+  onChange,
+  options
+}: {
+  value: string;
+  onChange: (v: string) => void;
+  options: { label: string; value: string }[];
+}) {
+  const [open, setOpen] = useState(false);
+  
+  return (
+    <div className="relative">
+      <button 
+        type="button" 
+        onClick={() => setOpen(!open)}
+        className="flex h-11 w-full rounded-xl border border-white/12 bg-white/[0.04] backdrop-blur-xl px-4 py-2 text-sm text-text shadow-inner transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary/60 focus:bg-white/[0.07] hover:border-white/20 items-center justify-between"
+      >
+        <span>{options.find(o => o.value === value)?.label ?? value}</span>
+        <ChevronDown className="w-4 h-4 text-muted" />
+      </button>
+      {open && (
+        <>
+          <div className="fixed inset-0 z-40" onClick={() => setOpen(false)} />
+          <div className="absolute top-full left-0 w-full mt-1.5 p-1.5 rounded-xl border border-white/12 bg-black/90 backdrop-blur-3xl shadow-2xl shadow-black/80 z-50 animate-slide-up origin-top">
+            {options.map(opt => (
+              <button
+                key={opt.value}
+                type="button"
+                onClick={() => { onChange(opt.value); setOpen(false); }}
+                className={cn(
+                  "w-full text-left px-3 py-2.5 rounded-lg text-sm transition-colors",
+                  value === opt.value ? "bg-primary/20 text-primary font-bold" : "text-text hover:bg-white/10"
+                )}
+              >
+                {opt.label}
+              </button>
+            ))}
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
+
 export default function Tasks() {
   const { data: reminders, isLoading } = useReminders()
   const createReminder = useCreateReminder()
   const updateReminder = useUpdateReminder()
   const deleteReminder = useDeleteReminder()
+  const createActivityLog = useCreateActivityLog()
 
   // ── Create form state ──
   const [newTask, setNewTask]           = useState("")
@@ -84,13 +132,15 @@ export default function Tasks() {
 
   const toggleDone = (r: Reminder) => {
     const isCompleted = !r.completed
-    updateReminder.mutate({
-      id: r.id,
-      updates: {
-        completed: isCompleted,
-        status: isCompleted ? "completed" : "pending"
-      }
-    })
+    if (isCompleted) {
+      deleteReminder.mutate(r.id)
+      createActivityLog.mutate({
+        action: "complete_task",
+        entity_title: r.title,
+        entity_type: "task",
+        details: "Completed task and moved to history."
+      })
+    }
   }
 
   const toggleOngoing = (r: Reminder) => {
@@ -138,16 +188,17 @@ export default function Tasks() {
 
   const filtered = useMemo(() => {
     return (reminders ?? []).filter(r => {
-      if (filter === "pending") return !r.completed && r.status !== "ongoing"
-      if (filter === "ongoing") return r.status === "ongoing" && !r.completed
-      if (filter === "done")    return r.completed
+      // Always exclude completed from this view
+      if (r.completed) return false
+      
+      if (filter === "pending") return r.status !== "ongoing"
+      if (filter === "ongoing") return r.status === "ongoing"
       return true
     })
   }, [reminders, filter])
 
   const pendingCount = (reminders ?? []).filter(r => !r.completed && r.status !== "ongoing").length
   const ongoingCount = (reminders ?? []).filter(r => r.status === "ongoing" && !r.completed).length
-  const doneCount    = (reminders ?? []).filter(r => r.completed).length
 
   return (
     <AppShell>
@@ -197,10 +248,9 @@ export default function Tasks() {
         {/* ── Status Tabs ── */}
         <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
           {[
-            { id: "all",     label: "All Tasks", count: reminders?.length ?? 0 },
+            { id: "all",     label: "All Tasks", count: pendingCount + ongoingCount },
             { id: "pending", label: "To Do",     count: pendingCount },
             { id: "ongoing", label: "Ongoing",   count: ongoingCount, highlight: true },
-            { id: "done",    label: "Completed", count: doneCount },
           ].map(tab => (
             <button
               key={tab.id}
@@ -260,26 +310,25 @@ export default function Tasks() {
                     <label className="text-xs font-semibold text-muted uppercase tracking-wider block mb-1">
                       Deadline
                     </label>
-                    <Input
-                      type="datetime-local"
+                    <DateTimePicker
                       value={deadline}
-                      onChange={e => setDeadline(e.target.value)}
+                      onChange={setDeadline}
                     />
                   </div>
                   <div>
                     <label className="text-xs font-semibold text-muted uppercase tracking-wider block mb-1">
                       Priority
                     </label>
-                    <select
+                    <CustomSelect
                       value={priority}
-                      onChange={e => setPriority(e.target.value as "none" | "Low" | "Medium" | "High")}
-                      className="w-full h-10 px-3 rounded-lg border border-border bg-surface/50 text-text text-sm focus:outline-none focus:border-primary"
-                    >
-                      <option value="none">Normal</option>
-                      <option value="Low">Low</option>
-                      <option value="Medium">Medium</option>
-                      <option value="High">High</option>
-                    </select>
+                      onChange={(v) => setPriority(v as any)}
+                      options={[
+                        { label: "Normal", value: "none" },
+                        { label: "Low", value: "Low" },
+                        { label: "Medium", value: "Medium" },
+                        { label: "High", value: "High" },
+                      ]}
+                    />
                   </div>
                 </div>
 
@@ -415,21 +464,20 @@ export default function Tasks() {
                       placeholder="Task title"
                     />
                     <div className="grid grid-cols-2 gap-2">
-                      <Input
-                        type="datetime-local"
+                      <DateTimePicker
                         value={editDeadline}
-                        onChange={e => setEditDeadline(e.target.value)}
+                        onChange={setEditDeadline}
                       />
-                      <select
+                      <CustomSelect
                         value={editPriority}
-                        onChange={e => setEditPriority(e.target.value as "none" | "Low" | "Medium" | "High")}
-                        className="h-10 px-3 rounded-lg border border-border bg-surface/50 text-text text-sm"
-                      >
-                        <option value="none">Normal Priority</option>
-                        <option value="Low">Low Priority</option>
-                        <option value="Medium">Medium Priority</option>
-                        <option value="High">High Priority</option>
-                      </select>
+                        onChange={(v) => setEditPriority(v as any)}
+                        options={[
+                          { label: "Normal", value: "none" },
+                          { label: "Low", value: "Low" },
+                          { label: "Medium", value: "Medium" },
+                          { label: "High", value: "High" },
+                        ]}
+                      />
                     </div>
                     <div className="flex justify-end gap-2">
                       <Button variant="ghost" size="sm" onClick={() => setEditingId(null)}>Cancel</Button>

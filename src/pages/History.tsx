@@ -142,11 +142,11 @@ export default function History() {
                 </div>
 
                 {/* Event list */}
-                <div className="space-y-2">
-                  {items.map(log => {
+                <div className="space-y-4 relative before:absolute before:inset-y-0 before:left-[17px] before:w-px before:bg-border/30 pl-1 pt-1">
+                  {items.map((log, index) => {
                     const config = ACTION_CONFIG[log.action] ?? {
                       label: log.action,
-                      icon: <Clock className="w-3.5 h-3.5" />,
+                      icon: <Clock className="w-4 h-4" />,
                       color: "text-muted",
                       bg: "bg-secondary/20"
                     }
@@ -154,27 +154,30 @@ export default function History() {
                     return (
                       <div
                         key={log.id}
-                        className="flex items-start gap-3.5 p-3.5 rounded-xl glass-card border border-border/30 hover:border-border/60 card-hover transition-all"
+                        className="flex items-start gap-4 relative group"
+                        style={{ animationDelay: `${index * 50}ms` }}
                       >
-                        <div className={cn("p-2 rounded-lg border shrink-0 mt-0.5", config.bg, config.color)}>
+                        {/* Timeline Node */}
+                        <div className={cn("relative z-10 p-2 rounded-xl border shrink-0 mt-0.5 shadow-sm transition-transform group-hover:scale-110", config.bg, config.color)}>
                           {config.icon}
                         </div>
 
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-baseline justify-between gap-2">
-                            <div className="flex items-center gap-2 flex-wrap">
-                              <span className="text-xs font-bold text-text truncate">{log.entity_title}</span>
-                              <span className={cn("px-2 py-0.5 rounded-full text-[10px] font-semibold border", config.bg, config.color)}>
+                        {/* Content Card */}
+                        <div className="flex-1 min-w-0 p-4 rounded-2xl glass-card border border-border/30 group-hover:border-primary/40 group-hover:shadow-[0_4px_20px_rgba(56,189,248,0.1)] transition-all duration-300">
+                          <div className="flex items-baseline justify-between gap-3">
+                            <div className="flex items-center gap-2.5 flex-wrap">
+                              <span className="text-sm font-bold text-text truncate group-hover:text-primary transition-colors">{log.entity_title}</span>
+                              <span className={cn("px-2.5 py-0.5 rounded-full text-[10px] font-bold border", config.bg, config.color)}>
                                 {config.label}
                               </span>
                             </div>
-                            <span className="text-[10px] text-muted shrink-0 flex items-center gap-1">
-                              <Clock className="w-2.5 h-2.5" />
+                            <span className="text-[10px] text-muted/70 shrink-0 flex items-center gap-1 font-semibold">
+                              <Clock className="w-3 h-3" />
                               {format(new Date(log.timestamp), "h:mm a")}
                             </span>
                           </div>
                           {log.details && (
-                            <p className="text-xs text-muted mt-0.5">{log.details}</p>
+                            <p className="text-xs text-muted/80 mt-1.5 leading-relaxed">{log.details}</p>
                           )}
                         </div>
                       </div>
