@@ -316,8 +316,10 @@ export function useUpdateMemory() {
         console.warn("Supabase update failed, updating mock data in memory.", e)
         const index = inMemoryMockData.findIndex(m => m.id === id)
         if (index > -1) {
-          inMemoryMockData[index] = { ...inMemoryMockData[index], ...updates, updated_at: new Date().toISOString() }
-          return inMemoryMockData[index]
+          const updatedArray = [...inMemoryMockData]
+          updatedArray[index] = { ...updatedArray[index], ...updates, updated_at: new Date().toISOString() }
+          inMemoryMockData = updatedArray
+          return updatedArray[index]
         }
         throw new Error("Memory not found in mock data")
       }
@@ -449,8 +451,10 @@ export function useUpdateReminder() {
         console.warn("Supabase update failed, updating mock reminder.", e)
         const idx = inMemoryMockReminders.findIndex(r => r.id === id)
         if (idx > -1) {
-          inMemoryMockReminders[idx] = { ...inMemoryMockReminders[idx], ...updates }
-          return inMemoryMockReminders[idx]
+          const updatedArray = [...inMemoryMockReminders]
+          updatedArray[idx] = { ...updatedArray[idx], ...updates }
+          inMemoryMockReminders = updatedArray
+          return updatedArray[idx]
         }
         throw new Error("Reminder not found in mock data")
       }
